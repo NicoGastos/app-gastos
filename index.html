@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestros Gastos</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .contenedor {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .saldo {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .saldo h2 {
+      margin: 5px;
+      font-size: 32px;
+    }
+
+    .formulario {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #222;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .lista {
+      margin-top: 20px;
+    }
+
+    .gasto {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="contenedor">
+
+    <h1>💰 Nuestros Gastos</h1>
+    <div class="subtitulo">Nico & Cyn</div>
+
+    <div class="saldo">
+      <div>Total gastado</div>
+      <h2 id="total">$0</h2>
+    </div>
+
+    <div class="formulario">
+
+      <input
+        type="text"
+        id="descripcion"
+        placeholder="¿En qué gastamos?"
+      >
+
+      <input
+        type="number"
+        id="monto"
+        placeholder="Monto"
+      >
+
+      <select id="categoria">
+        <option>Supermercado</option>
+        <option>Comida</option>
+        <option>Transporte</option>
+        <option>Servicios</option>
+        <option>Tarjetas</option>
+        <option>Salidas</option>
+        <option>Otros</option>
+      </select>
+
+      <select id="persona">
+        <option>Nico</option>
+        <option>Cyn</option>
+      </select>
+
+      <button onclick="agregarGasto()">
+        Agregar gasto
+      </button>
+
+    </div>
+
+    <div class="lista" id="lista"></div>
+
+  </div>
+
+  <script>
+    let gastos = [];
+
+    function agregarGasto() {
+
+      const descripcion =
+        document.getElementById("descripcion
