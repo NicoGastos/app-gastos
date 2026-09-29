@@ -3,7 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Nuestros Gastos</title>
 
@@ -88,7 +92,30 @@
       border-radius: 12px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .datos-gasto {
+      flex: 1;
+    }
+
+    .descripcion {
+      font-weight: bold;
+      font-size: 17px;
+      margin-bottom: 5px;
+    }
+
+    .detalle {
+      color: #555;
+      font-size: 14px;
+    }
+
+    .eliminar {
+      font-size: 23px;
+      cursor: pointer;
+      padding: 10px;
+      margin-left: 10px;
     }
 
   </style>
@@ -117,7 +144,6 @@
 
   <div class="formulario">
 
-
     <input
       type="text"
       id="descripcion"
@@ -129,6 +155,8 @@
       type="number"
       id="monto"
       placeholder="Monto"
+      min="0"
+      step="0.01"
     >
 
 
@@ -195,74 +223,169 @@
 
     <select id="persona">
 
-      <option>Nico</option>
+      <option value="Nico">Nico</option>
 
-      <option>Cyn</option>
+      <option value="Cyn">Cyn</option>
 
     </select>
 
 
-    <button onclick="agregarGasto()">
+    <button
+      type="button"
+      onclick="agregarGasto()"
+    >
       Agregar gasto
     </button>
-
 
   </div>
 
 
   <div
     class="lista"
-    id="lista">
-  </div>
-
+    id="lista"
+  ></div>
 
 </div>
 
 
-
 <script>
 
+  const CLAVE_GASTOS = "nicogastos_v1";
+
+  let gastos = [];
+
+
   /*
-  ==================================
-  CARGAR GASTOS GUARDADOS
-  ==================================
+  ==============================
+  CARGAR DATOS GUARDADOS
+  ==============================
   */
 
-  let gastos =
-    JSON.parse(localStorage.getItem("gastos")) || [];
+  function cargarGastos() {
 
+    try {
+
+      const datosGuardados =
+        localStorage.getItem(CLAVE_GASTOS);
+
+      if (datosGuardados) {
+
+        gastos = JSON.parse(datosGuardados);
+
+        if (!Array.isArray(gastos)) {
+          gastos = [];
+        }
+
+      } else {
+
+        /*
+        Busca también datos guardados
+        con la versión anterior.
+        */
+
+        const datosAnteriores =
+          localStorage.getItem("gastos");
+
+        if (datosAnteriores) {
+
+          gastos = JSON.parse(datosAnteriores);
+
+          if (!Array.isArray(gastos)) {
+            gastos = [];
+          }
+
+          guardarGastos();
+
+        }
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error al cargar gastos:",
+        error
+      );
+
+      gastos = [];
+
+    }
+
+  }
 
 
   /*
-  ==================================
+  ==============================
+  GUARDAR DATOS
+  ==============================
+  */
+
+  function guardarGastos() {
+
+    try {
+
+      localStorage.setItem(
+        CLAVE_GASTOS,
+        JSON.stringify(gastos)
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error al guardar:",
+        error
+      );
+
+      alert(
+        "No se pudieron guardar los datos."
+      );
+
+    }
+
+  }
+
+
+  /*
+  ==============================
   AGREGAR GASTO
-  ==================================
+  ==============================
   */
 
   function agregarGasto() {
 
-
     const descripcion =
-      document.getElementById("descripcion").value;
+      document
+        .getElementById("descripcion")
+        .value
+        .trim();
 
 
-    const monto =
-      document.getElementById("monto").value;
+    const montoTexto =
+      document
+        .getElementById("monto")
+        .value;
 
 
     const categoria =
-      document.getElementById("categoria").value;
+      document
+        .getElementById("categoria")
+        .value;
 
 
     const persona =
-      document.getElementById("persona").value;
+      document
+        .getElementById("persona")
+        .value;
 
 
+    const monto =
+      Number(montoTexto);
 
-    if (descripcion === "" || monto === "") {
+
+    if (descripcion === "") {
 
       alert(
-        "Completá la descripción y el monto"
+        "Ingresá una descripción."
       );
 
       return;
@@ -270,71 +393,91 @@
     }
 
 
+    if (
+      montoTexto === "" ||
+      isNaN(monto) ||
+      monto <= 0
+    ) {
+
+      alert(
+        "Ingresá un monto válido."
+      );
+
+      return;
+
+    }
+
 
     const gasto = {
 
+      id: Date.now(),
+
       descripcion: descripcion,
 
-      monto: Number(monto),
+      monto: monto,
 
       categoria: categoria,
 
-      persona: persona
+      persona: persona,
+
+      fecha: new Date().toISOString()
 
     };
 
 
-
-    /*
-    AGREGAR AL LISTADO
-    */
-
     gastos.push(gasto);
 
 
-
     /*
-    GUARDAR EN EL CELULAR
+    PRIMERO GUARDA
     */
 
-    localStorage.setItem(
-      "gastos",
-      JSON.stringify(gastos)
-    );
-
+    guardarGastos();
 
 
     /*
-    ACTUALIZAR PANTALLA
+    DESPUÉS ACTUALIZA
+    LA PANTALLA
     */
 
     mostrarGastos();
-
 
 
     /*
     LIMPIAR CAMPOS
     */
 
-    document.getElementById("descripcion").value = "";
+    document
+      .getElementById("descripcion")
+      .value = "";
 
-    document.getElementById("monto").value = "";
+
+    document
+      .getElementById("monto")
+      .value = "";
+
+
+    document
+      .getElementById("descripcion")
+      .focus();
 
   }
 
 
-
   /*
-  ==================================
-  MOSTRAR GASTOS
-  ==================================
+  ==============================
+  MOSTRAR GASTOS Y TOTAL
+  ==============================
   */
 
   function mostrarGastos() {
 
-
     const lista =
       document.getElementById("lista");
+
+
+    const totalElemento =
+      document.getElementById("total");
 
 
     lista.innerHTML = "";
@@ -343,140 +486,155 @@
     let total = 0;
 
 
+    gastos.forEach(
+      (gasto, index) => {
 
-    gastos.forEach((gasto, index) => {
-
-
-      total += Number(gasto.monto);
-
-
-
-      const item =
-        document.createElement("div");
+        const monto =
+          Number(gasto.monto) || 0;
 
 
+        /*
+        SUMAR CADA GASTO
+        */
 
-      item.innerHTML = `
-
-        <div style="
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          background:white;
-          padding:12px;
-          margin-bottom:8px;
-          border-radius:10px;
-        ">
+        total = total + monto;
 
 
-          <div>
+        const item =
+          document.createElement("div");
 
-            <strong>
+
+        item.className = "gasto";
+
+
+        const montoFormateado =
+          monto.toLocaleString(
+            "es-AR",
+            {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2
+            }
+          );
+
+
+        item.innerHTML = `
+
+          <div class="datos-gasto">
+
+            <div class="descripcion">
               ${gasto.descripcion}
-            </strong>
+            </div>
 
-            <br>
+            <div class="detalle">
 
-            $${gasto.monto}
-            -
-            ${gasto.categoria}
-            -
-            ${gasto.persona}
+              $${montoFormateado}
+
+              ·
+
+              ${gasto.categoria}
+
+              ·
+
+              ${gasto.persona}
+
+            </div>
 
           </div>
 
 
-
           <span
-
+            class="eliminar"
             onclick="eliminarGasto(${index})"
-
-            style="
-              font-size:22px;
-              cursor:pointer;
-              padding:10px;
-            "
-
+            title="Eliminar gasto"
           >
-
             🗑️
-
           </span>
 
-
-        </div>
-
-      `;
+        `;
 
 
+        lista.appendChild(item);
 
-      lista.appendChild(item);
-
-    });
-
+      }
+    );
 
 
     /*
-    ACTUALIZAR TOTAL
+    MOSTRAR TOTAL
     */
 
-    document.getElementById("total").textContent =
-      "$" + total.toLocaleString("es-AR");
+    const totalFormateado =
+      total.toLocaleString(
+        "es-AR",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        }
+      );
+
+
+    totalElemento.textContent =
+      "$" + totalFormateado;
 
   }
 
 
-
   /*
-  ==================================
+  ==============================
   ELIMINAR GASTO
-  ==================================
+  ==============================
   */
 
   function eliminarGasto(index) {
 
+    const gasto =
+      gastos[index];
+
 
     const confirmar =
       confirm(
-        "¿Deseás eliminar este gasto?"
+        "¿Deseás eliminar el gasto \"" +
+        gasto.descripcion +
+        "\" por $" +
+        Number(gasto.monto)
+          .toLocaleString("es-AR") +
+        "?"
       );
 
 
-
-    if (confirmar) {
-
-
-      gastos.splice(index, 1);
-
-
-
-      /*
-      GUARDAR CAMBIO
-      */
-
-      localStorage.setItem(
-        "gastos",
-        JSON.stringify(gastos)
-      );
-
-
-
-      mostrarGastos();
-
+    if (!confirmar) {
+      return;
     }
+
+
+    gastos.splice(index, 1);
+
+
+    /*
+    GUARDAR EL CAMBIO
+    */
+
+    guardarGastos();
+
+
+    /*
+    RECALCULAR LISTA Y TOTAL
+    */
+
+    mostrarGastos();
 
   }
 
 
-
   /*
-  ==================================
-  MOSTRAR GASTOS AL ABRIR APP
-  ==================================
+  ==============================
+  INICIAR APP
+  ==============================
   */
 
-  mostrarGastos();
+  cargarGastos();
 
+  mostrarGastos();
 
 </script>
 
