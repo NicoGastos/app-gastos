@@ -164,4 +164,53 @@
     function agregarGasto() {
 
       const descripcion =
-        document.getElementById("descripcion
+       document.getElementById("descripcion").value;
+    const monto = document.getElementById("monto").value;
+    const categoria = document.getElementById("categoria").value;
+    const persona = document.getElementById("persona").value;
+
+    if (descripcion === "" || monto === "") {
+      alert("Completá la descripción y el monto");
+      return;
+    }
+
+    const gasto = {
+      descripcion: descripcion,
+      monto: Number(monto),
+      categoria: categoria,
+      persona: persona
+    };
+
+    gastos.push(gasto);
+
+    mostrarGastos();
+
+    document.getElementById("descripcion").value = "";
+    document.getElementById("monto").value = "";
+  }
+
+  function mostrarGastos() {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    gastos.forEach((gasto, index) => {
+      const item = document.createElement("div");
+
+      item.innerHTML = `
+        <strong>${gasto.descripcion}</strong><br>
+        $${gasto.monto} - ${gasto.categoria} - ${gasto.persona}
+        <button onclick="eliminarGasto(${index})">Eliminar</button>
+      `;
+
+      lista.appendChild(item);
+    });
+  }
+
+  function eliminarGasto(index) {
+    gastos.splice(index, 1);
+    mostrarGastos();
+  }
+</script>
+
+</body>
+</html>
