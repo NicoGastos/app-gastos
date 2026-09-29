@@ -215,9 +215,13 @@
   }
 
   function eliminarGasto(index) {
+  const confirmar = confirm("¿Deseás eliminar este gasto?");
+
+  if (confirmar) {
     gastos.splice(index, 1);
     mostrarGastos();
   }
+}
 </script>
 
 </body>
