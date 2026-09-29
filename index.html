@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Nuestros Gastos</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -20,59 +16,38 @@
     }
 
     .contenedor {
-      max-width: 500px;
+      max-width: 520px;
       margin: auto;
-      padding: 20px;
+      padding: 18px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 5px;
+      margin: 8px 0 3px;
     }
 
-    .subtitulo {
+    .subtitulo, .estado {
       text-align: center;
       color: #666;
-      margin-bottom: 15px;
     }
 
     .estado {
-      text-align: center;
       font-size: 13px;
+      margin: 8px 0 16px;
+    }
+
+    .mes-selector {
+      display: flex;
+      gap: 8px;
       margin-bottom: 15px;
-      color: #666;
     }
 
-    .saldo {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .saldo h2 {
-      margin: 5px;
-      font-size: 32px;
-    }
-
-    .formulario {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    input,
-    select,
-    button {
+    input, select, button {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 13px;
       border-radius: 10px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     button {
@@ -83,52 +58,121 @@
       cursor: pointer;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    button.secundario {
+      background: white;
+      color: #222;
+      border: 1px solid #ccc;
     }
 
-    .lista {
-      margin-top: 20px;
+    .resumen {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .tarjeta {
+      background: white;
+      border-radius: 14px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+
+    .tarjeta span {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .tarjeta strong {
+      display: block;
+      font-size: 21px;
+      margin-top: 5px;
+    }
+
+    .formulario, .reportes, .filtros {
+      background: white;
+      padding: 17px;
+      border-radius: 14px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+
+    .formulario input,
+    .formulario select,
+    .formulario button,
+    .filtros select {
+      margin-top: 9px;
+    }
+
+    .botones {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .titulo-seccion {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
     }
 
     .gasto {
       background: white;
-      padding: 15px;
-      margin-bottom: 10px;
+      padding: 14px;
+      margin-bottom: 9px;
       border-radius: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,.05);
     }
 
-    .datos-gasto {
-      flex: 1;
-    }
+    .datos-gasto { flex: 1; }
 
     .descripcion {
       font-weight: bold;
-      font-size: 17px;
-      margin-bottom: 5px;
+      font-size: 16px;
     }
 
     .detalle {
-      color: #555;
       font-size: 14px;
+      color: #555;
+      margin-top: 4px;
     }
 
     .fecha {
-      color: #888;
       font-size: 12px;
-      margin-top: 5px;
+      color: #888;
+      margin-top: 4px;
     }
 
-    .eliminar {
-      font-size: 23px;
+    .acciones {
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+
+    .acciones span {
+      font-size: 21px;
       cursor: pointer;
-      padding: 10px;
-      margin-left: 10px;
+      padding: 7px;
+    }
+
+    .reporte-linea {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .oculto { display: none; }
+
+    .positivo { color: #16803c; }
+    .negativo { color: #b42318; }
+
+    .sin-datos {
+      text-align: center;
+      color: #777;
+      padding: 20px;
     }
   </style>
 </head>
@@ -138,79 +182,90 @@
 <div class="contenedor">
 
   <h1>💰 Nuestros Gastos</h1>
+  <div class="subtitulo">Nico & Cyn</div>
+  <div class="estado" id="estado">Conectando...</div>
 
-  <div class="subtitulo">
-    Nico & Cyn
+  <!-- MES -->
+  <div class="mes-selector">
+    <input type="month" id="mesSeleccionado">
   </div>
 
-  <div class="estado" id="estado">
-    Conectando...
+  <!-- RESUMEN -->
+  <div class="resumen">
+
+    <div class="tarjeta">
+      <span>💵 Ingresos</span>
+      <strong id="totalIngresos">$0</strong>
+    </div>
+
+    <div class="tarjeta">
+      <span>💸 Gastos</span>
+      <strong id="totalGastos">$0</strong>
+    </div>
+
+    <div class="tarjeta">
+      <span>💰 Disponible</span>
+      <strong id="disponible">$0</strong>
+    </div>
+
+    <div class="tarjeta">
+      <span>🧾 Movimientos</span>
+      <strong id="cantidadGastos">0</strong>
+    </div>
+
   </div>
 
-  <div class="saldo">
-    <div>Total gastado</div>
-    <h2 id="total">$0</h2>
+  <!-- BOTONES PRINCIPALES -->
+  <div class="botones">
+    <button onclick="mostrarFormularioGasto()">➕ Gasto</button>
+    <button onclick="mostrarFormularioIngreso()">💵 Ingreso</button>
   </div>
 
-  <div class="formulario">
+  <div class="botones">
+    <button class="secundario" onclick="toggleReportes()">📊 Reportes</button>
+    <button class="secundario" onclick="toggleFiltros()">🔎 Filtros</button>
+  </div>
 
-    <input
-      type="text"
-      id="descripcion"
-      placeholder="¿En qué gastamos?"
-    >
+  <br>
 
-    <input
-      type="number"
-      id="monto"
-      placeholder="Monto"
-      min="0"
-      step="0.01"
-    >
+  <!-- GASTO -->
+  <div class="formulario" id="formGasto">
+
+    <div class="titulo-seccion" id="tituloFormGasto">
+      Agregar gasto
+    </div>
+
+    <input type="text" id="descripcion" placeholder="¿En qué gastamos?">
+
+    <input type="number" id="monto" placeholder="Monto" min="0" step="0.01">
 
     <select id="categoria">
-
       <option value="Otros">Otros</option>
       <option value="Comida">Comida</option>
       <option value="Transporte">Transporte</option>
       <option value="Impuestos">Impuestos</option>
-
       <option value="Tarjetas Ciudad">Tarjetas Ciudad</option>
       <option value="Tarjetas Nacion">Tarjetas Nacion</option>
       <option value="Tarjetas BBVA">Tarjetas BBVA</option>
-
       <option value="Colegio Juli">Colegio Juli</option>
       <option value="Colegio Agus">Colegio Agus</option>
       <option value="Colegio Tomi">Colegio Tomi</option>
-
       <option value="Terapia Maga">Maga</option>
       <option value="Terapia Ale">Ale</option>
-
       <option value="Supermercado">Supermercado</option>
-
       <option value="Cochera Auto">Cochera Auto</option>
       <option value="Cochera Moto">Cochera Moto</option>
-
       <option value="Seguro Auto">Seguro Auto</option>
       <option value="Seguro Moto">Seguro Moto</option>
-
       <option value="Expensas">Expensas</option>
-
       <option value="Luz">Luz</option>
       <option value="Gas">Gas</option>
       <option value="ABL">ABL</option>
       <option value="AYSA">AYSA</option>
       <option value="CABLE">CABLE</option>
       <option value="Celular">Celular</option>
-
-      <option value="Viaje de Egresado">
-        Viaje Egresados Juli
-      </option>
-
-      <option value="Gira Deportiva">
-        Gira Deportiva Juli
-      </option>
-
+      <option value="Viaje de Egresado">Viaje Egresados Juli</option>
+      <option value="Gira Deportiva">Gira Deportiva Juli</option>
     </select>
 
     <select id="persona">
@@ -218,497 +273,903 @@
       <option value="Cyn">Cyn</option>
     </select>
 
-    <button
-      id="botonAgregar"
-      type="button"
-      onclick="agregarGasto()"
-    >
+    <button id="botonGuardarGasto" onclick="guardarGasto()">
       Agregar gasto
+    </button>
+
+    <button
+      id="botonCancelarEdicion"
+      class="secundario oculto"
+      onclick="cancelarEdicion()"
+    >
+      Cancelar edición
     </button>
 
   </div>
 
-  <div class="lista" id="lista"></div>
+  <!-- INGRESO -->
+  <div class="formulario oculto" id="formIngreso">
+
+    <div class="titulo-seccion">Agregar ingreso</div>
+
+    <input
+      type="text"
+      id="descripcionIngreso"
+      placeholder="Descripción del ingreso"
+    >
+
+    <input
+      type="number"
+      id="montoIngreso"
+      placeholder="Monto"
+      min="0"
+      step="0.01"
+    >
+
+    <select id="personaIngreso">
+      <option value="Nico">Nico</option>
+      <option value="Cyn">Cyn</option>
+    </select>
+
+    <button onclick="agregarIngreso()">
+      Guardar ingreso
+    </button>
+
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros oculto" id="panelFiltros">
+
+    <div class="titulo-seccion">🔎 Filtros</div>
+
+    <select id="filtroPersona">
+      <option value="">Todos</option>
+      <option value="Nico">Nico</option>
+      <option value="Cyn">Cyn</option>
+    </select>
+
+    <select id="filtroCategoria">
+      <option value="">Todas las categorías</option>
+    </select>
+
+    <button class="secundario" onclick="limpiarFiltros()">
+      Limpiar filtros
+    </button>
+
+  </div>
+
+  <!-- REPORTES -->
+  <div class="reportes oculto" id="panelReportes">
+
+    <div class="titulo-seccion">📊 Reporte del mes</div>
+
+    <div class="reporte-linea">
+      <span>Gastos Nico</span>
+      <strong id="reporteNico">$0</strong>
+    </div>
+
+    <div class="reporte-linea">
+      <span>Gastos Cyn</span>
+      <strong id="reporteCyn">$0</strong>
+    </div>
+
+    <br>
+
+    <strong>Por categoría</strong>
+
+    <div id="reporteCategorias"></div>
+
+  </div>
+
+  <div class="titulo-seccion">
+    Movimientos
+  </div>
+
+  <div id="lista"></div>
 
 </div>
 
 
 <script type="module">
 
-  import {
-    initializeApp
-  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    deleteDoc,
-    doc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyCLKkcyErLlAWXx7pIPyvj8ihqwedljXi98",
+  authDomain: "app-gastos-aa092.firebaseapp.com",
+  projectId: "app-gastos-aa092",
+  storageBucket: "app-gastos-aa092.firebasestorage.app",
+  messagingSenderId: "619381910434",
+  appId: "1:619381910434:web:bb1dc0a9a4336b979de0fb"
+};
 
 
-  /*
-  ======================================
-  CONFIGURACIÓN FIREBASE
-  ======================================
-  */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const firebaseConfig = {
+const gastosRef = collection(db, "gastos");
+const ingresosRef = collection(db, "ingresos");
 
-    apiKey:
-      "AIzaSyCLKkcyErLlAWXx7pIPyvj8ihqwedljXi98",
-
-    authDomain:
-      "app-gastos-aa092.firebaseapp.com",
-
-    projectId:
-      "app-gastos-aa092",
-
-    storageBucket:
-      "app-gastos-aa092.firebasestorage.app",
-
-    messagingSenderId:
-      "619381910434",
-
-    appId:
-      "1:619381910434:web:bb1dc0a9a4336b979de0fb"
-
-  };
+let gastos = [];
+let ingresos = [];
+let gastoEditando = null;
 
 
-  /*
-  ======================================
-  INICIAR FIREBASE
-  ======================================
-  */
+/* =========================
+   FECHA / MES
+========================= */
 
-  const app =
-    initializeApp(firebaseConfig);
+const hoy = new Date();
 
-  const db =
-    getFirestore(app);
+const mesActual =
+  hoy.getFullYear() +
+  "-" +
+  String(hoy.getMonth() + 1).padStart(2, "0");
 
-  const gastosRef =
-    collection(db, "gastos");
+document.getElementById("mesSeleccionado").value = mesActual;
 
 
-  let gastos = [];
+/* =========================
+   FORMATO
+========================= */
 
-  const estado =
-    document.getElementById("estado");
+function dinero(valor) {
 
-
-  /*
-  ======================================
-  FORMATO DE DINERO
-  ======================================
-  */
-
-  function formatoDinero(numero) {
-
-    return Number(numero).toLocaleString(
+  return "$" +
+    Number(valor || 0).toLocaleString(
       "es-AR",
       {
-        minimumFractionDigits: 0,
         maximumFractionDigits: 2
       }
     );
+}
 
+
+function obtenerFecha(fechaFirebase) {
+
+  if (!fechaFirebase) return null;
+
+  try {
+
+    if (typeof fechaFirebase.toDate === "function") {
+      return fechaFirebase.toDate();
+    }
+
+    return new Date(fechaFirebase);
+
+  } catch {
+    return null;
+  }
+}
+
+
+function perteneceAlMes(fechaFirebase) {
+
+  const fecha = obtenerFecha(fechaFirebase);
+
+  if (!fecha) return false;
+
+  const mes = document.getElementById("mesSeleccionado").value;
+
+  const [anio, numeroMes] = mes.split("-");
+
+  return (
+    fecha.getFullYear() === Number(anio) &&
+    fecha.getMonth() + 1 === Number(numeroMes)
+  );
+}
+
+
+/* =========================
+   FIREBASE - GASTOS
+========================= */
+
+onSnapshot(
+
+  gastosRef,
+
+  snapshot => {
+
+    gastos = [];
+
+    snapshot.forEach(documento => {
+
+      gastos.push({
+        id: documento.id,
+        ...documento.data()
+      });
+
+    });
+
+    document.getElementById("estado").textContent =
+      "☁️ Sincronizado";
+
+    actualizarPantalla();
+  },
+
+  error => {
+
+    console.error(error);
+
+    document.getElementById("estado").textContent =
+      "⚠️ Error de conexión";
+  }
+);
+
+
+/* =========================
+   FIREBASE - INGRESOS
+========================= */
+
+onSnapshot(
+
+  ingresosRef,
+
+  snapshot => {
+
+    ingresos = [];
+
+    snapshot.forEach(documento => {
+
+      ingresos.push({
+        id: documento.id,
+        ...documento.data()
+      });
+
+    });
+
+    actualizarPantalla();
+  }
+);
+
+
+/* =========================
+   AGREGAR / EDITAR GASTO
+========================= */
+
+async function guardarGasto() {
+
+  const descripcion =
+    document.getElementById("descripcion").value.trim();
+
+  const monto =
+    Number(document.getElementById("monto").value);
+
+  const categoria =
+    document.getElementById("categoria").value;
+
+  const persona =
+    document.getElementById("persona").value;
+
+
+  if (!descripcion || !monto || monto <= 0) {
+
+    alert("Completá descripción y monto.");
+
+    return;
   }
 
 
-  /*
-  ======================================
-  MOSTRAR GASTOS
-  ======================================
-  */
+  try {
 
-  function mostrarGastos() {
+    if (gastoEditando) {
 
-    const lista =
-      document.getElementById("lista");
-
-    const totalElemento =
-      document.getElementById("total");
-
-    lista.innerHTML = "";
-
-    let total = 0;
-
-
-    gastos.forEach((gasto) => {
-
-      const monto =
-        Number(gasto.monto) || 0;
-
-      total += monto;
-
-
-      const item =
-        document.createElement("div");
-
-      item.className = "gasto";
-
-
-      let fechaTexto = "";
-
-      if (gasto.fecha) {
-
-        try {
-
-          if (
-            typeof gasto.fecha.toDate === "function"
-          ) {
-
-            fechaTexto =
-              gasto.fecha
-                .toDate()
-                .toLocaleString("es-AR");
-
-          } else {
-
-            fechaTexto =
-              new Date(gasto.fecha)
-                .toLocaleString("es-AR");
-
-          }
-
-        } catch (error) {
-
-          fechaTexto = "";
-
+      await updateDoc(
+        doc(db, "gastos", gastoEditando),
+        {
+          descripcion,
+          monto,
+          categoria,
+          persona
         }
+      );
 
+      cancelarEdicion();
+
+    } else {
+
+      await addDoc(
+        gastosRef,
+        {
+          descripcion,
+          monto,
+          categoria,
+          persona,
+          fecha: serverTimestamp()
+        }
+      );
+
+      limpiarFormularioGasto();
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("No se pudo guardar el gasto.");
+  }
+}
+
+
+function limpiarFormularioGasto() {
+
+  document.getElementById("descripcion").value = "";
+  document.getElementById("monto").value = "";
+}
+
+
+function editarGasto(id) {
+
+  const gasto = gastos.find(g => g.id === id);
+
+  if (!gasto) return;
+
+  gastoEditando = id;
+
+  document.getElementById("descripcion").value =
+    gasto.descripcion;
+
+  document.getElementById("monto").value =
+    gasto.monto;
+
+  document.getElementById("categoria").value =
+    gasto.categoria;
+
+  document.getElementById("persona").value =
+    gasto.persona;
+
+  document.getElementById("tituloFormGasto").textContent =
+    "Editar gasto";
+
+  document.getElementById("botonGuardarGasto").textContent =
+    "Guardar cambios";
+
+  document.getElementById("botonCancelarEdicion")
+    .classList.remove("oculto");
+
+  document.getElementById("formGasto")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+
+function cancelarEdicion() {
+
+  gastoEditando = null;
+
+  limpiarFormularioGasto();
+
+  document.getElementById("tituloFormGasto").textContent =
+    "Agregar gasto";
+
+  document.getElementById("botonGuardarGasto").textContent =
+    "Agregar gasto";
+
+  document.getElementById("botonCancelarEdicion")
+    .classList.add("oculto");
+}
+
+
+async function eliminarGasto(id) {
+
+  const gasto = gastos.find(g => g.id === id);
+
+  if (!gasto) return;
+
+  if (
+    !confirm(
+      `¿Eliminar "${gasto.descripcion}" por ${dinero(gasto.monto)}?`
+    )
+  ) {
+    return;
+  }
+
+  await deleteDoc(doc(db, "gastos", id));
+}
+
+
+/* =========================
+   INGRESOS
+========================= */
+
+async function agregarIngreso() {
+
+  const descripcion =
+    document.getElementById("descripcionIngreso")
+      .value.trim();
+
+  const monto =
+    Number(
+      document.getElementById("montoIngreso").value
+    );
+
+  const persona =
+    document.getElementById("personaIngreso").value;
+
+
+  if (!descripcion || !monto || monto <= 0) {
+
+    alert("Completá descripción y monto del ingreso.");
+
+    return;
+  }
+
+
+  try {
+
+    await addDoc(
+      ingresosRef,
+      {
+        descripcion,
+        monto,
+        persona,
+        fecha: serverTimestamp()
       }
+    );
 
+    document.getElementById("descripcionIngreso").value = "";
+    document.getElementById("montoIngreso").value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("No se pudo guardar el ingreso.");
+  }
+}
+
+
+async function eliminarIngreso(id) {
+
+  if (!confirm("¿Eliminar este ingreso?")) return;
+
+  await deleteDoc(
+    doc(db, "ingresos", id)
+  );
+}
+
+
+/* =========================
+   PANTALLA
+========================= */
+
+function actualizarPantalla() {
+
+  const gastosMes =
+    gastos.filter(g => perteneceAlMes(g.fecha));
+
+  const ingresosMes =
+    ingresos.filter(i => perteneceAlMes(i.fecha));
+
+
+  const totalGastos =
+    gastosMes.reduce(
+      (total, g) => total + Number(g.monto || 0),
+      0
+    );
+
+
+  const totalIngresos =
+    ingresosMes.reduce(
+      (total, i) => total + Number(i.monto || 0),
+      0
+    );
+
+
+  const disponible =
+    totalIngresos - totalGastos;
+
+
+  document.getElementById("totalGastos").textContent =
+    dinero(totalGastos);
+
+  document.getElementById("totalIngresos").textContent =
+    dinero(totalIngresos);
+
+  const disponibleElemento =
+    document.getElementById("disponible");
+
+  disponibleElemento.textContent =
+    dinero(disponible);
+
+  disponibleElemento.className =
+    disponible >= 0 ? "positivo" : "negativo";
+
+  document.getElementById("cantidadGastos").textContent =
+    gastosMes.length + ingresosMes.length;
+
+
+  mostrarMovimientos(
+    gastosMes,
+    ingresosMes
+  );
+
+  generarReportes(gastosMes);
+
+  cargarCategoriasFiltro();
+}
+
+
+/* =========================
+   MOVIMIENTOS
+========================= */
+
+function mostrarMovimientos(gastosMes, ingresosMes) {
+
+  const lista =
+    document.getElementById("lista");
+
+  lista.innerHTML = "";
+
+
+  const filtroPersona =
+    document.getElementById("filtroPersona").value;
+
+  const filtroCategoria =
+    document.getElementById("filtroCategoria").value;
+
+
+  let movimientos = [];
+
+
+  gastosMes.forEach(gasto => {
+
+    if (
+      filtroPersona &&
+      gasto.persona !== filtroPersona
+    ) return;
+
+    if (
+      filtroCategoria &&
+      gasto.categoria !== filtroCategoria
+    ) return;
+
+    movimientos.push({
+      ...gasto,
+      tipo: "gasto"
+    });
+  });
+
+
+  ingresosMes.forEach(ingreso => {
+
+    if (
+      filtroPersona &&
+      ingreso.persona !== filtroPersona
+    ) return;
+
+    if (filtroCategoria) return;
+
+    movimientos.push({
+      ...ingreso,
+      tipo: "ingreso"
+    });
+  });
+
+
+  movimientos.sort((a, b) => {
+
+    const fa = obtenerFecha(a.fecha);
+    const fb = obtenerFecha(b.fecha);
+
+    return (fb || 0) - (fa || 0);
+  });
+
+
+  if (movimientos.length === 0) {
+
+    lista.innerHTML =
+      `<div class="sin-datos">
+        No hay movimientos para mostrar.
+       </div>`;
+
+    return;
+  }
+
+
+  movimientos.forEach(movimiento => {
+
+    const fecha =
+      obtenerFecha(movimiento.fecha);
+
+
+    const fechaTexto =
+      fecha
+        ? fecha.toLocaleString("es-AR")
+        : "";
+
+
+    const item =
+      document.createElement("div");
+
+    item.className = "gasto";
+
+
+    if (movimiento.tipo === "gasto") {
 
       item.innerHTML = `
 
         <div class="datos-gasto">
 
           <div class="descripcion">
-            ${gasto.descripcion}
+            ${movimiento.descripcion}
           </div>
 
           <div class="detalle">
-
-            $${formatoDinero(monto)}
-
-            ·
-
-            ${gasto.categoria}
-
-            ·
-
-            ${gasto.persona}
-
+            💸 ${dinero(movimiento.monto)}
+            · ${movimiento.categoria}
+            · ${movimiento.persona}
           </div>
 
-          ${
-            fechaTexto
-              ? `<div class="fecha">${fechaTexto}</div>`
-              : ""
-          }
+          <div class="fecha">
+            ${fechaTexto}
+          </div>
 
         </div>
 
-        <span
-          class="eliminar"
-          data-id="${gasto.id}"
-          title="Eliminar gasto"
-        >
-          🗑️
-        </span>
+        <div class="acciones">
 
+          <span
+            onclick="editarGasto('${movimiento.id}')"
+          >✏️</span>
+
+          <span
+            onclick="eliminarGasto('${movimiento.id}')"
+          >🗑️</span>
+
+        </div>
       `;
 
+    } else {
 
-      const botonEliminar =
-        item.querySelector(".eliminar");
+      item.innerHTML = `
 
+        <div class="datos-gasto">
 
-      botonEliminar.addEventListener(
-        "click",
-        () => eliminarGasto(gasto.id)
-      );
+          <div class="descripcion">
+            ${movimiento.descripcion}
+          </div>
 
+          <div class="detalle positivo">
+            💵 +${dinero(movimiento.monto)}
+            · ${movimiento.persona}
+          </div>
 
-      lista.appendChild(item);
+          <div class="fecha">
+            ${fechaTexto}
+          </div>
 
-    });
+        </div>
 
+        <div class="acciones">
 
-    totalElemento.textContent =
-      "$" + formatoDinero(total);
+          <span
+            onclick="eliminarIngreso('${movimiento.id}')"
+          >🗑️</span>
 
-  }
-
-
-  /*
-  ======================================
-  ESCUCHAR FIRESTORE EN TIEMPO REAL
-  ======================================
-  */
-
-  const consulta =
-    query(
-      gastosRef,
-      orderBy("fecha", "desc")
-    );
-
-
-  onSnapshot(
-
-    consulta,
-
-    (snapshot) => {
-
-      gastos = [];
-
-      snapshot.forEach((documento) => {
-
-        gastos.push({
-
-          id: documento.id,
-
-          ...documento.data()
-
-        });
-
-      });
-
-
-      mostrarGastos();
-
-      estado.textContent =
-        "☁️ Sincronizado";
-
-    },
-
-    (error) => {
-
-      console.error(
-        "Error al leer Firestore:",
-        error
-      );
-
-      estado.textContent =
-        "⚠️ Error de conexión";
-
+        </div>
+      `;
     }
 
+
+    lista.appendChild(item);
+  });
+}
+
+
+/* =========================
+   REPORTES
+========================= */
+
+function generarReportes(gastosMes) {
+
+  let nico = 0;
+  let cyn = 0;
+
+  const categorias = {};
+
+
+  gastosMes.forEach(gasto => {
+
+    const monto =
+      Number(gasto.monto || 0);
+
+
+    if (gasto.persona === "Nico") {
+      nico += monto;
+    }
+
+    if (gasto.persona === "Cyn") {
+      cyn += monto;
+    }
+
+
+    if (!categorias[gasto.categoria]) {
+      categorias[gasto.categoria] = 0;
+    }
+
+    categorias[gasto.categoria] += monto;
+  });
+
+
+  document.getElementById("reporteNico").textContent =
+    dinero(nico);
+
+  document.getElementById("reporteCyn").textContent =
+    dinero(cyn);
+
+
+  const contenedor =
+    document.getElementById("reporteCategorias");
+
+  contenedor.innerHTML = "";
+
+
+  Object.entries(categorias)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([categoria, total]) => {
+
+      const fila =
+        document.createElement("div");
+
+      fila.className =
+        "reporte-linea";
+
+      fila.innerHTML = `
+        <span>${categoria}</span>
+        <strong>${dinero(total)}</strong>
+      `;
+
+      contenedor.appendChild(fila);
+    });
+}
+
+
+/* =========================
+   FILTROS
+========================= */
+
+function cargarCategoriasFiltro() {
+
+  const selector =
+    document.getElementById("filtroCategoria");
+
+  const actual = selector.value;
+
+  const categorias =
+    [...new Set(
+      gastos.map(g => g.categoria)
+    )].sort();
+
+
+  selector.innerHTML =
+    `<option value="">
+      Todas las categorías
+     </option>`;
+
+
+  categorias.forEach(categoria => {
+
+    const opcion =
+      document.createElement("option");
+
+    opcion.value = categoria;
+    opcion.textContent = categoria;
+
+    selector.appendChild(opcion);
+  });
+
+
+  selector.value = actual;
+}
+
+
+function limpiarFiltros() {
+
+  document.getElementById("filtroPersona").value = "";
+  document.getElementById("filtroCategoria").value = "";
+
+  actualizarPantalla();
+}
+
+
+/* =========================
+   BOTONES / PANELES
+========================= */
+
+function mostrarFormularioGasto() {
+
+  document.getElementById("formGasto")
+    .classList.remove("oculto");
+
+  document.getElementById("formIngreso")
+    .classList.add("oculto");
+}
+
+
+function mostrarFormularioIngreso() {
+
+  document.getElementById("formIngreso")
+    .classList.remove("oculto");
+
+  document.getElementById("formGasto")
+    .classList.add("oculto");
+}
+
+
+function toggleReportes() {
+
+  document.getElementById("panelReportes")
+    .classList.toggle("oculto");
+}
+
+
+function toggleFiltros() {
+
+  document.getElementById("panelFiltros")
+    .classList.toggle("oculto");
+}
+
+
+/* =========================
+   EVENTOS
+========================= */
+
+document.getElementById("mesSeleccionado")
+  .addEventListener(
+    "change",
+    actualizarPantalla
   );
 
 
-  /*
-  ======================================
-  AGREGAR GASTO
-  ======================================
-  */
+document.getElementById("filtroPersona")
+  .addEventListener(
+    "change",
+    actualizarPantalla
+  );
 
-  async function agregarGasto() {
 
-    const descripcion =
-      document
-        .getElementById("descripcion")
-        .value
-        .trim();
+document.getElementById("filtroCategoria")
+  .addEventListener(
+    "change",
+    actualizarPantalla
+  );
 
 
-    const montoTexto =
-      document
-        .getElementById("monto")
-        .value;
+/* =========================
+   EXPONER FUNCIONES
+========================= */
 
+window.guardarGasto = guardarGasto;
+window.editarGasto = editarGasto;
+window.eliminarGasto = eliminarGasto;
+window.cancelarEdicion = cancelarEdicion;
 
-    const categoria =
-      document
-        .getElementById("categoria")
-        .value;
+window.agregarIngreso = agregarIngreso;
+window.eliminarIngreso = eliminarIngreso;
 
+window.mostrarFormularioGasto = mostrarFormularioGasto;
+window.mostrarFormularioIngreso = mostrarFormularioIngreso;
 
-    const persona =
-      document
-        .getElementById("persona")
-        .value;
+window.toggleReportes = toggleReportes;
+window.toggleFiltros = toggleFiltros;
 
-
-    const monto =
-      Number(montoTexto);
-
-
-    if (descripcion === "") {
-
-      alert(
-        "Ingresá una descripción."
-      );
-
-      return;
-
-    }
-
-
-    if (
-      montoTexto === "" ||
-      isNaN(monto) ||
-      monto <= 0
-    ) {
-
-      alert(
-        "Ingresá un monto válido."
-      );
-
-      return;
-
-    }
-
-
-    const boton =
-      document.getElementById(
-        "botonAgregar"
-      );
-
-
-    try {
-
-      boton.disabled = true;
-
-      boton.textContent =
-        "Guardando...";
-
-
-      await addDoc(
-        gastosRef,
-        {
-
-          descripcion: descripcion,
-
-          monto: monto,
-
-          categoria: categoria,
-
-          persona: persona,
-
-          fecha: serverTimestamp()
-
-        }
-      );
-
-
-      document
-        .getElementById("descripcion")
-        .value = "";
-
-
-      document
-        .getElementById("monto")
-        .value = "";
-
-
-      document
-        .getElementById("descripcion")
-        .focus();
-
-
-    } catch (error) {
-
-      console.error(
-        "Error al guardar:",
-        error
-      );
-
-
-      alert(
-        "No se pudo guardar el gasto en Firebase."
-      );
-
-    } finally {
-
-      boton.disabled = false;
-
-      boton.textContent =
-        "Agregar gasto";
-
-    }
-
-  }
-
-
-  /*
-  ======================================
-  ELIMINAR GASTO
-  ======================================
-  */
-
-  async function eliminarGasto(id) {
-
-    const gasto =
-      gastos.find(
-        (g) => g.id === id
-      );
-
-
-    if (!gasto) {
-      return;
-    }
-
-
-    const confirmar =
-      confirm(
-        "¿Deseás eliminar el gasto \"" +
-        gasto.descripcion +
-        "\" por $" +
-        formatoDinero(gasto.monto) +
-        "?"
-      );
-
-
-    if (!confirmar) {
-      return;
-    }
-
-
-    try {
-
-      await deleteDoc(
-        doc(db, "gastos", id)
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Error al eliminar:",
-        error
-      );
-
-
-      alert(
-        "No se pudo eliminar el gasto."
-      );
-
-    }
-
-  }
-
-
-  /*
-  ======================================
-  HACER FUNCIONES ACCESIBLES AL HTML
-  ======================================
-  */
-
-  window.agregarGasto =
-    agregarGasto;
+window.limpiarFiltros = limpiarFiltros;
 
 </script>
 
-
 </body>
-
 </html>
