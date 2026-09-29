@@ -165,7 +165,6 @@
     }
 
     .oculto { display: none; }
-
     .positivo { color: #16803c; }
     .negativo { color: #b42318; }
 
@@ -182,15 +181,13 @@
 <div class="contenedor">
 
   <h1>💰 Nuestros Gastos</h1>
-  <div class="subtitulo">Nico & Cyn</div>
+  <div class="subtitulo">Cyn & Nico</div>
   <div class="estado" id="estado">Conectando...</div>
 
-  <!-- MES -->
   <div class="mes-selector">
     <input type="month" id="mesSeleccionado">
   </div>
 
-  <!-- RESUMEN -->
   <div class="resumen">
 
     <div class="tarjeta">
@@ -215,7 +212,6 @@
 
   </div>
 
-  <!-- BOTONES PRINCIPALES -->
   <div class="botones">
     <button onclick="mostrarFormularioGasto()">➕ Gasto</button>
     <button onclick="mostrarFormularioIngreso()">💵 Ingreso</button>
@@ -228,12 +224,10 @@
 
   <br>
 
-  <!-- GASTO -->
+  <!-- GASTOS -->
   <div class="formulario" id="formGasto">
 
-    <div class="titulo-seccion" id="tituloFormGasto">
-      Agregar gasto
-    </div>
+    <div class="titulo-seccion" id="tituloFormGasto">Agregar gasto</div>
 
     <input type="text" id="descripcion" placeholder="¿En qué gastamos?">
 
@@ -280,42 +274,50 @@
     <button
       id="botonCancelarEdicion"
       class="secundario oculto"
-      onclick="cancelarEdicion()"
-    >
+      onclick="cancelarEdicion()">
       Cancelar edición
     </button>
 
   </div>
 
-  <!-- INGRESO -->
+
+  <!-- INGRESOS -->
   <div class="formulario oculto" id="formIngreso">
 
-    <div class="titulo-seccion">Agregar ingreso</div>
+    <div class="titulo-seccion" id="tituloFormIngreso">
+      Agregar ingreso
+    </div>
 
     <input
       type="text"
       id="descripcionIngreso"
-      placeholder="Descripción del ingreso"
-    >
+      placeholder="Descripción del ingreso">
 
     <input
       type="number"
       id="montoIngreso"
       placeholder="Monto"
       min="0"
-      step="0.01"
-    >
+      step="0.01">
 
     <select id="personaIngreso">
       <option value="Nico">Nico</option>
       <option value="Cyn">Cyn</option>
     </select>
 
-    <button onclick="agregarIngreso()">
+    <button id="botonGuardarIngreso" onclick="guardarIngreso()">
       Guardar ingreso
     </button>
 
+    <button
+      id="botonCancelarIngreso"
+      class="secundario oculto"
+      onclick="cancelarEdicionIngreso()">
+      Cancelar edición
+    </button>
+
   </div>
+
 
   <!-- FILTROS -->
   <div class="filtros oculto" id="panelFiltros">
@@ -337,6 +339,7 @@
     </button>
 
   </div>
+
 
   <!-- REPORTES -->
   <div class="reportes oculto" id="panelReportes">
@@ -361,9 +364,8 @@
 
   </div>
 
-  <div class="titulo-seccion">
-    Movimientos
-  </div>
+
+  <div class="titulo-seccion">Movimientos</div>
 
   <div id="lista"></div>
 
@@ -406,12 +408,12 @@ const ingresosRef = collection(db, "ingresos");
 
 let gastos = [];
 let ingresos = [];
+
 let gastoEditando = null;
+let ingresoEditando = null;
 
 
-/* =========================
-   FECHA / MES
-========================= */
+/* MES ACTUAL */
 
 const hoy = new Date();
 
@@ -423,21 +425,19 @@ const mesActual =
 document.getElementById("mesSeleccionado").value = mesActual;
 
 
-/* =========================
-   FORMATO
-========================= */
+/* FORMATO DINERO */
 
 function dinero(valor) {
 
   return "$" +
     Number(valor || 0).toLocaleString(
       "es-AR",
-      {
-        maximumFractionDigits: 2
-      }
+      { maximumFractionDigits: 2 }
     );
 }
 
+
+/* FECHAS */
 
 function obtenerFecha(fechaFirebase) {
 
@@ -463,7 +463,8 @@ function perteneceAlMes(fechaFirebase) {
 
   if (!fecha) return false;
 
-  const mes = document.getElementById("mesSeleccionado").value;
+  const mes =
+    document.getElementById("mesSeleccionado").value;
 
   const [anio, numeroMes] = mes.split("-");
 
@@ -474,12 +475,9 @@ function perteneceAlMes(fechaFirebase) {
 }
 
 
-/* =========================
-   FIREBASE - GASTOS
-========================= */
+/* FIREBASE GASTOS */
 
 onSnapshot(
-
   gastosRef,
 
   snapshot => {
@@ -511,12 +509,9 @@ onSnapshot(
 );
 
 
-/* =========================
-   FIREBASE - INGRESOS
-========================= */
+/* FIREBASE INGRESOS */
 
 onSnapshot(
-
   ingresosRef,
 
   snapshot => {
@@ -537,9 +532,7 @@ onSnapshot(
 );
 
 
-/* =========================
-   AGREGAR / EDITAR GASTO
-========================= */
+/* GUARDAR GASTO */
 
 async function guardarGasto() {
 
@@ -559,7 +552,6 @@ async function guardarGasto() {
   if (!descripcion || !monto || monto <= 0) {
 
     alert("Completá descripción y monto.");
-
     return;
   }
 
@@ -599,7 +591,6 @@ async function guardarGasto() {
   } catch (error) {
 
     console.error(error);
-
     alert("No se pudo guardar el gasto.");
   }
 }
@@ -619,6 +610,8 @@ function editarGasto(id) {
   if (!gasto) return;
 
   gastoEditando = id;
+
+  mostrarFormularioGasto();
 
   document.getElementById("descripcion").value =
     gasto.descripcion;
@@ -673,19 +666,17 @@ async function eliminarGasto(id) {
     !confirm(
       `¿Eliminar "${gasto.descripcion}" por ${dinero(gasto.monto)}?`
     )
-  ) {
-    return;
-  }
+  ) return;
 
   await deleteDoc(doc(db, "gastos", id));
 }
 
 
-/* =========================
-   INGRESOS
-========================= */
+/* =============================
+   INGRESOS - AGREGAR Y EDITAR
+============================= */
 
-async function agregarIngreso() {
+async function guardarIngreso() {
 
   const descripcion =
     document.getElementById("descripcionIngreso")
@@ -703,38 +694,118 @@ async function agregarIngreso() {
   if (!descripcion || !monto || monto <= 0) {
 
     alert("Completá descripción y monto del ingreso.");
-
     return;
   }
 
 
   try {
 
-    await addDoc(
-      ingresosRef,
-      {
-        descripcion,
-        monto,
-        persona,
-        fecha: serverTimestamp()
-      }
-    );
+    if (ingresoEditando) {
 
-    document.getElementById("descripcionIngreso").value = "";
-    document.getElementById("montoIngreso").value = "";
+      await updateDoc(
+        doc(db, "ingresos", ingresoEditando),
+        {
+          descripcion,
+          monto,
+          persona
+        }
+      );
+
+      cancelarEdicionIngreso();
+
+    } else {
+
+      await addDoc(
+        ingresosRef,
+        {
+          descripcion,
+          monto,
+          persona,
+          fecha: serverTimestamp()
+        }
+      );
+
+      limpiarFormularioIngreso();
+    }
 
   } catch (error) {
 
     console.error(error);
-
     alert("No se pudo guardar el ingreso.");
   }
 }
 
 
+function limpiarFormularioIngreso() {
+
+  document.getElementById("descripcionIngreso").value = "";
+  document.getElementById("montoIngreso").value = "";
+}
+
+
+function editarIngreso(id) {
+
+  const ingreso =
+    ingresos.find(i => i.id === id);
+
+  if (!ingreso) return;
+
+  ingresoEditando = id;
+
+  mostrarFormularioIngreso();
+
+  document.getElementById("descripcionIngreso").value =
+    ingreso.descripcion;
+
+  document.getElementById("montoIngreso").value =
+    ingreso.monto;
+
+  document.getElementById("personaIngreso").value =
+    ingreso.persona;
+
+  document.getElementById("tituloFormIngreso").textContent =
+    "Editar ingreso";
+
+  document.getElementById("botonGuardarIngreso").textContent =
+    "Guardar cambios";
+
+  document.getElementById("botonCancelarIngreso")
+    .classList.remove("oculto");
+
+  document.getElementById("formIngreso")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+
+function cancelarEdicionIngreso() {
+
+  ingresoEditando = null;
+
+  limpiarFormularioIngreso();
+
+  document.getElementById("tituloFormIngreso").textContent =
+    "Agregar ingreso";
+
+  document.getElementById("botonGuardarIngreso").textContent =
+    "Guardar ingreso";
+
+  document.getElementById("botonCancelarIngreso")
+    .classList.add("oculto");
+}
+
+
 async function eliminarIngreso(id) {
 
-  if (!confirm("¿Eliminar este ingreso?")) return;
+  const ingreso =
+    ingresos.find(i => i.id === id);
+
+  if (!ingreso) return;
+
+  if (
+    !confirm(
+      `¿Eliminar "${ingreso.descripcion}" por ${dinero(ingreso.monto)}?`
+    )
+  ) return;
 
   await deleteDoc(
     doc(db, "ingresos", id)
@@ -742,9 +813,7 @@ async function eliminarIngreso(id) {
 }
 
 
-/* =========================
-   PANTALLA
-========================= */
+/* ACTUALIZAR PANTALLA */
 
 function actualizarPantalla() {
 
@@ -788,14 +857,12 @@ function actualizarPantalla() {
   disponibleElemento.className =
     disponible >= 0 ? "positivo" : "negativo";
 
+
   document.getElementById("cantidadGastos").textContent =
     gastosMes.length + ingresosMes.length;
 
 
-  mostrarMovimientos(
-    gastosMes,
-    ingresosMes
-  );
+  mostrarMovimientos(gastosMes, ingresosMes);
 
   generarReportes(gastosMes);
 
@@ -803,9 +870,7 @@ function actualizarPantalla() {
 }
 
 
-/* =========================
-   MOVIMIENTOS
-========================= */
+/* MOVIMIENTOS */
 
 function mostrarMovimientos(gastosMes, ingresosMes) {
 
@@ -885,7 +950,6 @@ function mostrarMovimientos(gastosMes, ingresosMes) {
     const fecha =
       obtenerFecha(movimiento.fecha);
 
-
     const fechaTexto =
       fecha
         ? fecha.toLocaleString("es-AR")
@@ -922,13 +986,13 @@ function mostrarMovimientos(gastosMes, ingresosMes) {
 
         <div class="acciones">
 
-          <span
-            onclick="editarGasto('${movimiento.id}')"
-          >✏️</span>
+          <span onclick="editarGasto('${movimiento.id}')">
+            ✏️
+          </span>
 
-          <span
-            onclick="eliminarGasto('${movimiento.id}')"
-          >🗑️</span>
+          <span onclick="eliminarGasto('${movimiento.id}')">
+            🗑️
+          </span>
 
         </div>
       `;
@@ -956,23 +1020,24 @@ function mostrarMovimientos(gastosMes, ingresosMes) {
 
         <div class="acciones">
 
-          <span
-            onclick="eliminarIngreso('${movimiento.id}')"
-          >🗑️</span>
+          <span onclick="editarIngreso('${movimiento.id}')">
+            ✏️
+          </span>
+
+          <span onclick="eliminarIngreso('${movimiento.id}')">
+            🗑️
+          </span>
 
         </div>
       `;
     }
-
 
     lista.appendChild(item);
   });
 }
 
 
-/* =========================
-   REPORTES
-========================= */
+/* REPORTES */
 
 function generarReportes(gastosMes) {
 
@@ -987,7 +1052,6 @@ function generarReportes(gastosMes) {
     const monto =
       Number(gasto.monto || 0);
 
-
     if (gasto.persona === "Nico") {
       nico += monto;
     }
@@ -995,7 +1059,6 @@ function generarReportes(gastosMes) {
     if (gasto.persona === "Cyn") {
       cyn += monto;
     }
-
 
     if (!categorias[gasto.categoria]) {
       categorias[gasto.categoria] = 0;
@@ -1025,8 +1088,7 @@ function generarReportes(gastosMes) {
       const fila =
         document.createElement("div");
 
-      fila.className =
-        "reporte-linea";
+      fila.className = "reporte-linea";
 
       fila.innerHTML = `
         <span>${categoria}</span>
@@ -1038,9 +1100,7 @@ function generarReportes(gastosMes) {
 }
 
 
-/* =========================
-   FILTROS
-========================= */
+/* FILTROS */
 
 function cargarCategoriasFiltro() {
 
@@ -1072,7 +1132,6 @@ function cargarCategoriasFiltro() {
     selector.appendChild(opcion);
   });
 
-
   selector.value = actual;
 }
 
@@ -1086,9 +1145,7 @@ function limpiarFiltros() {
 }
 
 
-/* =========================
-   BOTONES / PANELES
-========================= */
+/* PANELES */
 
 function mostrarFormularioGasto() {
 
@@ -1124,49 +1181,35 @@ function toggleFiltros() {
 }
 
 
-/* =========================
-   EVENTOS
-========================= */
+/* EVENTOS */
 
 document.getElementById("mesSeleccionado")
-  .addEventListener(
-    "change",
-    actualizarPantalla
-  );
-
+  .addEventListener("change", actualizarPantalla);
 
 document.getElementById("filtroPersona")
-  .addEventListener(
-    "change",
-    actualizarPantalla
-  );
-
+  .addEventListener("change", actualizarPantalla);
 
 document.getElementById("filtroCategoria")
-  .addEventListener(
-    "change",
-    actualizarPantalla
-  );
+  .addEventListener("change", actualizarPantalla);
 
 
-/* =========================
-   EXPONER FUNCIONES
-========================= */
+/* FUNCIONES PARA HTML */
 
 window.guardarGasto = guardarGasto;
 window.editarGasto = editarGasto;
 window.eliminarGasto = eliminarGasto;
 window.cancelarEdicion = cancelarEdicion;
 
-window.agregarIngreso = agregarIngreso;
+window.guardarIngreso = guardarIngreso;
+window.editarIngreso = editarIngreso;
 window.eliminarIngreso = eliminarIngreso;
+window.cancelarEdicionIngreso = cancelarEdicionIngreso;
 
 window.mostrarFormularioGasto = mostrarFormularioGasto;
 window.mostrarFormularioIngreso = mostrarFormularioIngreso;
 
 window.toggleReportes = toggleReportes;
 window.toggleFiltros = toggleFiltros;
-
 window.limpiarFiltros = limpiarFiltros;
 
 </script>
