@@ -3,16 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Nuestros Gastos</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -38,7 +33,14 @@
     .subtitulo {
       text-align: center;
       color: #666;
-      margin-bottom: 25px;
+      margin-bottom: 15px;
+    }
+
+    .estado {
+      text-align: center;
+      font-size: 13px;
+      margin-bottom: 15px;
+      color: #666;
     }
 
     .saldo {
@@ -81,6 +83,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .lista {
       margin-top: 20px;
     }
@@ -111,16 +118,20 @@
       font-size: 14px;
     }
 
+    .fecha {
+      color: #888;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
     .eliminar {
       font-size: 23px;
       cursor: pointer;
       padding: 10px;
       margin-left: 10px;
     }
-
   </style>
 </head>
-
 
 <body>
 
@@ -132,15 +143,14 @@
     Nico & Cyn
   </div>
 
-
-  <div class="saldo">
-
-    <div>Total gastado</div>
-
-    <h2 id="total">$0</h2>
-
+  <div class="estado" id="estado">
+    Conectando...
   </div>
 
+  <div class="saldo">
+    <div>Total gastado</div>
+    <h2 id="total">$0</h2>
+  </div>
 
   <div class="formulario">
 
@@ -150,7 +160,6 @@
       placeholder="¿En qué gastamos?"
     >
 
-
     <input
       type="number"
       id="monto"
@@ -159,55 +168,39 @@
       step="0.01"
     >
 
-
     <select id="categoria">
 
       <option value="Otros">Otros</option>
-
       <option value="Comida">Comida</option>
-
       <option value="Transporte">Transporte</option>
-
       <option value="Impuestos">Impuestos</option>
 
       <option value="Tarjetas Ciudad">Tarjetas Ciudad</option>
-
       <option value="Tarjetas Nacion">Tarjetas Nacion</option>
-
       <option value="Tarjetas BBVA">Tarjetas BBVA</option>
 
       <option value="Colegio Juli">Colegio Juli</option>
-
       <option value="Colegio Agus">Colegio Agus</option>
-
       <option value="Colegio Tomi">Colegio Tomi</option>
 
       <option value="Terapia Maga">Maga</option>
-
       <option value="Terapia Ale">Ale</option>
 
       <option value="Supermercado">Supermercado</option>
 
       <option value="Cochera Auto">Cochera Auto</option>
-
       <option value="Cochera Moto">Cochera Moto</option>
 
       <option value="Seguro Auto">Seguro Auto</option>
-
       <option value="Seguro Moto">Seguro Moto</option>
 
       <option value="Expensas">Expensas</option>
 
       <option value="Luz">Luz</option>
-
       <option value="Gas">Gas</option>
-
       <option value="ABL">ABL</option>
-
       <option value="AYSA">AYSA</option>
-
       <option value="CABLE">CABLE</option>
-
       <option value="Celular">Celular</option>
 
       <option value="Viaje de Egresado">
@@ -220,17 +213,13 @@
 
     </select>
 
-
     <select id="persona">
-
       <option value="Nico">Nico</option>
-
       <option value="Cyn">Cyn</option>
-
     </select>
 
-
     <button
+      id="botonAgregar"
       type="button"
       onclick="agregarGasto()"
     >
@@ -239,119 +228,291 @@
 
   </div>
 
-
-  <div
-    class="lista"
-    id="lista"
-  ></div>
+  <div class="lista" id="lista"></div>
 
 </div>
 
 
-<script>
+<script type="module">
 
-  const CLAVE_GASTOS = "nicogastos_v1";
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 
-  let gastos = [];
+
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
   /*
-  ==============================
-  CARGAR DATOS GUARDADOS
-  ==============================
+  ======================================
+  CONFIGURACIÓN FIREBASE
+  ======================================
   */
 
-  function cargarGastos() {
+  const firebaseConfig = {
 
-    try {
+    apiKey:
+      "AIzaSyCLKkcyErLlAWXx7pIPyvj8ihqwedljXi98",
 
-      const datosGuardados =
-        localStorage.getItem(CLAVE_GASTOS);
+    authDomain:
+      "app-gastos-aa092.firebaseapp.com",
 
-      if (datosGuardados) {
+    projectId:
+      "app-gastos-aa092",
 
-        gastos = JSON.parse(datosGuardados);
+    storageBucket:
+      "app-gastos-aa092.firebasestorage.app",
 
-        if (!Array.isArray(gastos)) {
-          gastos = [];
-        }
+    messagingSenderId:
+      "619381910434",
 
-      } else {
+    appId:
+      "1:619381910434:web:bb1dc0a9a4336b979de0fb"
 
-        /*
-        Busca también datos guardados
-        con la versión anterior.
-        */
+  };
 
-        const datosAnteriores =
-          localStorage.getItem("gastos");
 
-        if (datosAnteriores) {
+  /*
+  ======================================
+  INICIAR FIREBASE
+  ======================================
+  */
 
-          gastos = JSON.parse(datosAnteriores);
+  const app =
+    initializeApp(firebaseConfig);
 
-          if (!Array.isArray(gastos)) {
-            gastos = [];
+  const db =
+    getFirestore(app);
+
+  const gastosRef =
+    collection(db, "gastos");
+
+
+  let gastos = [];
+
+  const estado =
+    document.getElementById("estado");
+
+
+  /*
+  ======================================
+  FORMATO DE DINERO
+  ======================================
+  */
+
+  function formatoDinero(numero) {
+
+    return Number(numero).toLocaleString(
+      "es-AR",
+      {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }
+    );
+
+  }
+
+
+  /*
+  ======================================
+  MOSTRAR GASTOS
+  ======================================
+  */
+
+  function mostrarGastos() {
+
+    const lista =
+      document.getElementById("lista");
+
+    const totalElemento =
+      document.getElementById("total");
+
+    lista.innerHTML = "";
+
+    let total = 0;
+
+
+    gastos.forEach((gasto) => {
+
+      const monto =
+        Number(gasto.monto) || 0;
+
+      total += monto;
+
+
+      const item =
+        document.createElement("div");
+
+      item.className = "gasto";
+
+
+      let fechaTexto = "";
+
+      if (gasto.fecha) {
+
+        try {
+
+          if (
+            typeof gasto.fecha.toDate === "function"
+          ) {
+
+            fechaTexto =
+              gasto.fecha
+                .toDate()
+                .toLocaleString("es-AR");
+
+          } else {
+
+            fechaTexto =
+              new Date(gasto.fecha)
+                .toLocaleString("es-AR");
+
           }
 
-          guardarGastos();
+        } catch (error) {
+
+          fechaTexto = "";
 
         }
 
       }
 
-    } catch (error) {
 
-      console.error(
-        "Error al cargar gastos:",
-        error
+      item.innerHTML = `
+
+        <div class="datos-gasto">
+
+          <div class="descripcion">
+            ${gasto.descripcion}
+          </div>
+
+          <div class="detalle">
+
+            $${formatoDinero(monto)}
+
+            ·
+
+            ${gasto.categoria}
+
+            ·
+
+            ${gasto.persona}
+
+          </div>
+
+          ${
+            fechaTexto
+              ? `<div class="fecha">${fechaTexto}</div>`
+              : ""
+          }
+
+        </div>
+
+        <span
+          class="eliminar"
+          data-id="${gasto.id}"
+          title="Eliminar gasto"
+        >
+          🗑️
+        </span>
+
+      `;
+
+
+      const botonEliminar =
+        item.querySelector(".eliminar");
+
+
+      botonEliminar.addEventListener(
+        "click",
+        () => eliminarGasto(gasto.id)
       );
+
+
+      lista.appendChild(item);
+
+    });
+
+
+    totalElemento.textContent =
+      "$" + formatoDinero(total);
+
+  }
+
+
+  /*
+  ======================================
+  ESCUCHAR FIRESTORE EN TIEMPO REAL
+  ======================================
+  */
+
+  const consulta =
+    query(
+      gastosRef,
+      orderBy("fecha", "desc")
+    );
+
+
+  onSnapshot(
+
+    consulta,
+
+    (snapshot) => {
 
       gastos = [];
 
-    }
+      snapshot.forEach((documento) => {
 
-  }
+        gastos.push({
+
+          id: documento.id,
+
+          ...documento.data()
+
+        });
+
+      });
 
 
-  /*
-  ==============================
-  GUARDAR DATOS
-  ==============================
-  */
+      mostrarGastos();
 
-  function guardarGastos() {
+      estado.textContent =
+        "☁️ Sincronizado";
 
-    try {
+    },
 
-      localStorage.setItem(
-        CLAVE_GASTOS,
-        JSON.stringify(gastos)
-      );
-
-    } catch (error) {
+    (error) => {
 
       console.error(
-        "Error al guardar:",
+        "Error al leer Firestore:",
         error
       );
 
-      alert(
-        "No se pudieron guardar los datos."
-      );
+      estado.textContent =
+        "⚠️ Error de conexión";
 
     }
 
-  }
+  );
 
 
   /*
-  ==============================
+  ======================================
   AGREGAR GASTO
-  ==============================
+  ======================================
   */
 
-  function agregarGasto() {
+  async function agregarGasto() {
 
     const descripcion =
       document
@@ -408,187 +569,94 @@
     }
 
 
-    const gasto = {
+    const boton =
+      document.getElementById(
+        "botonAgregar"
+      );
 
-      id: Date.now(),
 
-      descripcion: descripcion,
+    try {
 
-      monto: monto,
+      boton.disabled = true;
 
-      categoria: categoria,
+      boton.textContent =
+        "Guardando...";
 
-      persona: persona,
 
-      fecha: new Date().toISOString()
-
-    };
-
-
-    gastos.push(gasto);
-
-
-    /*
-    PRIMERO GUARDA
-    */
-
-    guardarGastos();
-
-
-    /*
-    DESPUÉS ACTUALIZA
-    LA PANTALLA
-    */
-
-    mostrarGastos();
-
-
-    /*
-    LIMPIAR CAMPOS
-    */
-
-    document
-      .getElementById("descripcion")
-      .value = "";
-
-
-    document
-      .getElementById("monto")
-      .value = "";
-
-
-    document
-      .getElementById("descripcion")
-      .focus();
-
-  }
-
-
-  /*
-  ==============================
-  MOSTRAR GASTOS Y TOTAL
-  ==============================
-  */
-
-  function mostrarGastos() {
-
-    const lista =
-      document.getElementById("lista");
-
-
-    const totalElemento =
-      document.getElementById("total");
-
-
-    lista.innerHTML = "";
-
-
-    let total = 0;
-
-
-    gastos.forEach(
-      (gasto, index) => {
-
-        const monto =
-          Number(gasto.monto) || 0;
-
-
-        /*
-        SUMAR CADA GASTO
-        */
-
-        total = total + monto;
-
-
-        const item =
-          document.createElement("div");
-
-
-        item.className = "gasto";
-
-
-        const montoFormateado =
-          monto.toLocaleString(
-            "es-AR",
-            {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2
-            }
-          );
-
-
-        item.innerHTML = `
-
-          <div class="datos-gasto">
-
-            <div class="descripcion">
-              ${gasto.descripcion}
-            </div>
-
-            <div class="detalle">
-
-              $${montoFormateado}
-
-              ·
-
-              ${gasto.categoria}
-
-              ·
-
-              ${gasto.persona}
-
-            </div>
-
-          </div>
-
-
-          <span
-            class="eliminar"
-            onclick="eliminarGasto(${index})"
-            title="Eliminar gasto"
-          >
-            🗑️
-          </span>
-
-        `;
-
-
-        lista.appendChild(item);
-
-      }
-    );
-
-
-    /*
-    MOSTRAR TOTAL
-    */
-
-    const totalFormateado =
-      total.toLocaleString(
-        "es-AR",
+      await addDoc(
+        gastosRef,
         {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 2
+
+          descripcion: descripcion,
+
+          monto: monto,
+
+          categoria: categoria,
+
+          persona: persona,
+
+          fecha: serverTimestamp()
+
         }
       );
 
 
-    totalElemento.textContent =
-      "$" + totalFormateado;
+      document
+        .getElementById("descripcion")
+        .value = "";
+
+
+      document
+        .getElementById("monto")
+        .value = "";
+
+
+      document
+        .getElementById("descripcion")
+        .focus();
+
+
+    } catch (error) {
+
+      console.error(
+        "Error al guardar:",
+        error
+      );
+
+
+      alert(
+        "No se pudo guardar el gasto en Firebase."
+      );
+
+    } finally {
+
+      boton.disabled = false;
+
+      boton.textContent =
+        "Agregar gasto";
+
+    }
 
   }
 
 
   /*
-  ==============================
+  ======================================
   ELIMINAR GASTO
-  ==============================
+  ======================================
   */
 
-  function eliminarGasto(index) {
+  async function eliminarGasto(id) {
 
     const gasto =
-      gastos[index];
+      gastos.find(
+        (g) => g.id === id
+      );
+
+
+    if (!gasto) {
+      return;
+    }
 
 
     const confirmar =
@@ -596,8 +664,7 @@
         "¿Deseás eliminar el gasto \"" +
         gasto.descripcion +
         "\" por $" +
-        Number(gasto.monto)
-          .toLocaleString("es-AR") +
+        formatoDinero(gasto.monto) +
         "?"
       );
 
@@ -607,34 +674,37 @@
     }
 
 
-    gastos.splice(index, 1);
+    try {
+
+      await deleteDoc(
+        doc(db, "gastos", id)
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error al eliminar:",
+        error
+      );
 
 
-    /*
-    GUARDAR EL CAMBIO
-    */
+      alert(
+        "No se pudo eliminar el gasto."
+      );
 
-    guardarGastos();
-
-
-    /*
-    RECALCULAR LISTA Y TOTAL
-    */
-
-    mostrarGastos();
+    }
 
   }
 
 
   /*
-  ==============================
-  INICIAR APP
-  ==============================
+  ======================================
+  HACER FUNCIONES ACCESIBLES AL HTML
+  ======================================
   */
 
-  cargarGastos();
-
-  mostrarGastos();
+  window.agregarGasto =
+    agregarGasto;
 
 </script>
 
