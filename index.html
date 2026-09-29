@@ -197,10 +197,18 @@
       const item = document.createElement("div");
 
       item.innerHTML = `
-        <strong>${gasto.descripcion}</strong><br>
-        $${gasto.monto} - ${gasto.categoria} - ${gasto.persona}
-        <button onclick="eliminarGasto(${index})">Eliminar</button>
-      `;
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <strong>${gasto.descripcion}</strong><br>
+      $${gasto.monto} - ${gasto.categoria} - ${gasto.persona}
+    </div>
+
+    <span
+      onclick="eliminarGasto(${index})"
+      style="font-size:22px; cursor:pointer; padding:10px;"
+    >🗑️</span>
+  </div>
+`;
 
       lista.appendChild(item);
     });
