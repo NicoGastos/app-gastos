@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Nuestros Gastos</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -55,7 +58,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    input, select, button {
+    input,
+    select,
+    button {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
@@ -85,144 +90,397 @@
       justify-content: space-between;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+
   </style>
 </head>
 
+
 <body>
 
-  <div class="contenedor">
+<div class="contenedor">
 
-    <h1>💰 Nuestros Gastos</h1>
-    <div class="subtitulo">Nico & Cyn</div>
+  <h1>💰 Nuestros Gastos</h1>
 
-    <div class="saldo">
-      <div>Total gastado</div>
-      <h2 id="total">$0</h2>
-    </div>
+  <div class="subtitulo">
+    Nico & Cyn
+  </div>
 
-    <div class="formulario">
 
-      <input
-        type="text"
-        id="descripcion"
-        placeholder="¿En qué gastamos?"
-      >
+  <div class="saldo">
 
-      <input
-        type="number"
-        id="monto"
-        placeholder="Monto"
-      >
+    <div>Total gastado</div>
 
-         <select id="categoria">
-  <option value="Otros">Otros</option>
-  <option value="Comida">Comida</option>
-  <option value="Transporte">Transporte</option>
-  <option value="Impuestos">Impuestos</option>
-  <option value="Tarjetas Ciudad">Tarjetas Ciudad</option>
-  <option value="Tarjetas Nacion">Tarjetas Nacion</option>
-  <option value="Tarjetas BBVA">Tarjetas BBVA</option>
-  <option value="Colegio Juli">Colegio Juli</option>
-   <option value="Colegio Agus">Colegio Agus</option>
-    <option value="Colegio Tomi">Colegio Tomi</option>
-  <option value="Terapia Maga">Maga</option>
-  <option value="Terapia Ale">Ale</option>
-  <option value="Otros">Supermercado</option>
-  <option value="Cochera Auto">Cochera Auto</option>
-  <option value="Cochera Moto">Cochera Moto</option>
-  <option value="Seguro Auto">Seguro Auto</option>
-  <option value="Seguro Moto">Seguro Moto</option>
-  <option value="Expensas">Expensas</option>
-  <option value="Luz">Luz</option>
-  <option value="Gas">Gas</option>
-  <option value="ABL">ABL</option>
-  <option value="AYSA">AYSA</option>
-  <option value="CABLE">CABLE</option>
-  <option value="Celular">Celular</option>
-  <option value="Viaje de Egresado">Viaje Egresados Juli</option>
-  <option value="Gira Deportiva">Gira Deportiva Juli</option>
-      </select>
-
-      <select id="persona">
-        <option>Nico</option>
-        <option>Cyn</option>
-      </select>
-
-      <button onclick="agregarGasto()">
-        Agregar gasto
-      </button>
-
-    </div>
-
-    <div class="lista" id="lista"></div>
+    <h2 id="total">$0</h2>
 
   </div>
 
-  <script>
-    let gastos = [];
 
-    function agregarGasto() {
+  <div class="formulario">
 
-      const descripcion =
-       document.getElementById("descripcion").value;
-    const monto = document.getElementById("monto").value;
-    const categoria = document.getElementById("categoria").value;
-    const persona = document.getElementById("persona").value;
+
+    <input
+      type="text"
+      id="descripcion"
+      placeholder="¿En qué gastamos?"
+    >
+
+
+    <input
+      type="number"
+      id="monto"
+      placeholder="Monto"
+    >
+
+
+    <select id="categoria">
+
+      <option value="Otros">Otros</option>
+
+      <option value="Comida">Comida</option>
+
+      <option value="Transporte">Transporte</option>
+
+      <option value="Impuestos">Impuestos</option>
+
+      <option value="Tarjetas Ciudad">Tarjetas Ciudad</option>
+
+      <option value="Tarjetas Nacion">Tarjetas Nacion</option>
+
+      <option value="Tarjetas BBVA">Tarjetas BBVA</option>
+
+      <option value="Colegio Juli">Colegio Juli</option>
+
+      <option value="Colegio Agus">Colegio Agus</option>
+
+      <option value="Colegio Tomi">Colegio Tomi</option>
+
+      <option value="Terapia Maga">Maga</option>
+
+      <option value="Terapia Ale">Ale</option>
+
+      <option value="Supermercado">Supermercado</option>
+
+      <option value="Cochera Auto">Cochera Auto</option>
+
+      <option value="Cochera Moto">Cochera Moto</option>
+
+      <option value="Seguro Auto">Seguro Auto</option>
+
+      <option value="Seguro Moto">Seguro Moto</option>
+
+      <option value="Expensas">Expensas</option>
+
+      <option value="Luz">Luz</option>
+
+      <option value="Gas">Gas</option>
+
+      <option value="ABL">ABL</option>
+
+      <option value="AYSA">AYSA</option>
+
+      <option value="CABLE">CABLE</option>
+
+      <option value="Celular">Celular</option>
+
+      <option value="Viaje de Egresado">
+        Viaje Egresados Juli
+      </option>
+
+      <option value="Gira Deportiva">
+        Gira Deportiva Juli
+      </option>
+
+    </select>
+
+
+    <select id="persona">
+
+      <option>Nico</option>
+
+      <option>Cyn</option>
+
+    </select>
+
+
+    <button onclick="agregarGasto()">
+      Agregar gasto
+    </button>
+
+
+  </div>
+
+
+  <div
+    class="lista"
+    id="lista">
+  </div>
+
+
+</div>
+
+
+
+<script>
+
+  /*
+  ==================================
+  CARGAR GASTOS GUARDADOS
+  ==================================
+  */
+
+  let gastos =
+    JSON.parse(localStorage.getItem("gastos")) || [];
+
+
+
+  /*
+  ==================================
+  AGREGAR GASTO
+  ==================================
+  */
+
+  function agregarGasto() {
+
+
+    const descripcion =
+      document.getElementById("descripcion").value;
+
+
+    const monto =
+      document.getElementById("monto").value;
+
+
+    const categoria =
+      document.getElementById("categoria").value;
+
+
+    const persona =
+      document.getElementById("persona").value;
+
+
 
     if (descripcion === "" || monto === "") {
-      alert("Completá la descripción y el monto");
+
+      alert(
+        "Completá la descripción y el monto"
+      );
+
       return;
+
     }
 
+
+
     const gasto = {
+
       descripcion: descripcion,
+
       monto: Number(monto),
+
       categoria: categoria,
+
       persona: persona
+
     };
+
+
+
+    /*
+    AGREGAR AL LISTADO
+    */
 
     gastos.push(gasto);
 
+
+
+    /*
+    GUARDAR EN EL CELULAR
+    */
+
+    localStorage.setItem(
+      "gastos",
+      JSON.stringify(gastos)
+    );
+
+
+
+    /*
+    ACTUALIZAR PANTALLA
+    */
+
     mostrarGastos();
+
+
+
+    /*
+    LIMPIAR CAMPOS
+    */
 
     document.getElementById("descripcion").value = "";
+
     document.getElementById("monto").value = "";
+
   }
+
+
+
+  /*
+  ==================================
+  MOSTRAR GASTOS
+  ==================================
+  */
 
   function mostrarGastos() {
-    const lista = document.getElementById("lista");
+
+
+    const lista =
+      document.getElementById("lista");
+
+
     lista.innerHTML = "";
 
+
+    let total = 0;
+
+
+
     gastos.forEach((gasto, index) => {
-      const item = document.createElement("div");
+
+
+      total += Number(gasto.monto);
+
+
+
+      const item =
+        document.createElement("div");
+
+
 
       item.innerHTML = `
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <div>
-      <strong>${gasto.descripcion}</strong><br>
-      $${gasto.monto} - ${gasto.categoria} - ${gasto.persona}
-    </div>
 
-    <span
-      onclick="eliminarGasto(${index})"
-      style="font-size:22px; cursor:pointer; padding:10px;"
-    >🗑️</span>
-  </div>
-`;
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          background:white;
+          padding:12px;
+          margin-bottom:8px;
+          border-radius:10px;
+        ">
+
+
+          <div>
+
+            <strong>
+              ${gasto.descripcion}
+            </strong>
+
+            <br>
+
+            $${gasto.monto}
+            -
+            ${gasto.categoria}
+            -
+            ${gasto.persona}
+
+          </div>
+
+
+
+          <span
+
+            onclick="eliminarGasto(${index})"
+
+            style="
+              font-size:22px;
+              cursor:pointer;
+              padding:10px;
+            "
+
+          >
+
+            🗑️
+
+          </span>
+
+
+        </div>
+
+      `;
+
+
 
       lista.appendChild(item);
+
     });
+
+
+
+    /*
+    ACTUALIZAR TOTAL
+    */
+
+    document.getElementById("total").textContent =
+      "$" + total.toLocaleString("es-AR");
+
   }
+
+
+
+  /*
+  ==================================
+  ELIMINAR GASTO
+  ==================================
+  */
 
   function eliminarGasto(index) {
-  const confirmar = confirm("¿Deseás eliminar este gasto?");
 
-  if (confirmar) {
-    gastos.splice(index, 1);
-    mostrarGastos();
+
+    const confirmar =
+      confirm(
+        "¿Deseás eliminar este gasto?"
+      );
+
+
+
+    if (confirmar) {
+
+
+      gastos.splice(index, 1);
+
+
+
+      /*
+      GUARDAR CAMBIO
+      */
+
+      localStorage.setItem(
+        "gastos",
+        JSON.stringify(gastos)
+      );
+
+
+
+      mostrarGastos();
+
+    }
+
   }
-}
+
+
+
+  /*
+  ==================================
+  MOSTRAR GASTOS AL ABRIR APP
+  ==================================
+  */
+
+  mostrarGastos();
+
+
 </script>
 
+
 </body>
+
 </html>
